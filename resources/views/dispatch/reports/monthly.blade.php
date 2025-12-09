@@ -7,12 +7,12 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <div>
+            <a href="{{ route('reports.index') }}" class="bg-blue-600 text-white px-8 py-2 rounded-full hover:bg-blue-700 mb-2 inline-block">
+                Back
+            </a>
             <h1 class="text-3xl font-bold text-gray-800">Monthly Report</h1>
             <p class="text-gray-600 mt-1">{{ $month->format('F Y') }}</p>
         </div>
-        <a href="{{ route('reports.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-            <i class="fas fa-arrow-left"></i> Back to Reports
-        </a>
     </div>
 
     <!-- Date Filter -->
@@ -60,6 +60,25 @@
         <div class="bg-white rounded-lg shadow p-4">
             <p class="text-gray-500 text-sm">Cancelled</p>
             <p class="text-2xl font-bold text-red-600">{{ $stats['cancelled'] }}</p>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Status Distribution Pie Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Status Distribution</h3>
+            <div style="height: 300px; position: relative;">
+                <canvas id="statusPieChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Weekly Trips Bar Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Weekly Trip Distribution</h3>
+            <div style="height: 300px; position: relative;">
+                <canvas id="weeklyBarChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -155,4 +174,90 @@
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script src="{{ asset('js/chart.min.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js library failed to load');
+            return;
+        }
+
+        // Status Distribution Pie Chart
+        const statusCtx = document.getElementById('statusPieChart');
+        if (statusCtx) {
+            new Chart(statusCtx, {
+                type: 'pie',
+                data: {
+                    labels: {!! json_encode($statusChartData['labels']) !!},
+                    datasets: [{
+                        data: {!! json_encode($statusChartData['data']) !!},
+                        backgroundColor: {!! json_encode($statusChartData['colors']) !!},
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed + ' trips';
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Weekly Trips Bar Chart
+        const weeklyCtx = document.getElementById('weeklyBarChart');
+        if (weeklyCtx) {
+            new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: {!! json_encode(array_column($weeklyData, 'week')) !!},
+                    datasets: [{
+                        label: 'Trips',
+                        data: {!! json_encode(array_column($weeklyData, 'count')) !!},
+                        backgroundColor: '#8b5cf6',
+                        borderColor: '#7c3aed',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush
 @endsection

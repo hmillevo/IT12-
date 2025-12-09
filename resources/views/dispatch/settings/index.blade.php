@@ -63,8 +63,11 @@
                                 <input type="text" 
                                     id="app_name" 
                                     name="app_name" 
-                                    value="{{ config('app.name', 'Dispatch System') }}"
+                                    value="{{ old('app_name', config('app.name', 'Dispatch System')) }}"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                @error('app_name')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
@@ -74,11 +77,17 @@
                                 <select id="timezone" 
                                     name="timezone" 
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="Asia/Manila" selected>Asia/Manila (GMT+8)</option>
-                                    <option value="UTC">UTC</option>
-                                    <option value="America/New_York">America/New York</option>
-                                    <option value="Europe/London">Europe/London</option>
+                                    @php
+                                        $currentTimezone = old('timezone', config('app.timezone', 'UTC'));
+                                    @endphp
+                                    <option value="Asia/Manila" {{ $currentTimezone === 'Asia/Manila' ? 'selected' : '' }}>Asia/Manila (GMT+8)</option>
+                                    <option value="UTC" {{ $currentTimezone === 'UTC' ? 'selected' : '' }}>UTC</option>
+                                    <option value="America/New_York" {{ $currentTimezone === 'America/New_York' ? 'selected' : '' }}>America/New York</option>
+                                    <option value="Europe/London" {{ $currentTimezone === 'Europe/London' ? 'selected' : '' }}>Europe/London</option>
                                 </select>
+                                @error('timezone')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
@@ -88,11 +97,17 @@
                                 <select id="date_format" 
                                     name="date_format" 
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="Y-m-d">YYYY-MM-DD (2025-01-15)</option>
-                                    <option value="m/d/Y" selected>MM/DD/YYYY (01/15/2025)</option>
-                                    <option value="d/m/Y">DD/MM/YYYY (15/01/2025)</option>
-                                    <option value="F j, Y">Month Day, Year (January 15, 2025)</option>
+                                    @php
+                                        $currentDateFormat = old('date_format', config('settings.date_format', 'm/d/Y'));
+                                    @endphp
+                                    <option value="Y-m-d" {{ $currentDateFormat === 'Y-m-d' ? 'selected' : '' }}>YYYY-MM-DD (2025-01-15)</option>
+                                    <option value="m/d/Y" {{ $currentDateFormat === 'm/d/Y' ? 'selected' : '' }}>MM/DD/YYYY (01/15/2025)</option>
+                                    <option value="d/m/Y" {{ $currentDateFormat === 'd/m/Y' ? 'selected' : '' }}>DD/MM/YYYY (15/01/2025)</option>
+                                    <option value="F j, Y" {{ $currentDateFormat === 'F j, Y' ? 'selected' : '' }}>Month Day, Year (January 15, 2025)</option>
                                 </select>
+                                @error('date_format')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
@@ -102,10 +117,13 @@
                                 <input type="number" 
                                     id="items_per_page" 
                                     name="items_per_page" 
-                                    value="10"
+                                    value="{{ old('items_per_page', config('settings.items_per_page', 10)) }}"
                                     min="5"
                                     max="100"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                @error('items_per_page')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -274,11 +292,33 @@
 
                     <!-- Save Button -->
                     <div class="flex justify-end">
-                        <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <button type="submit" id="saveSettingsBtn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                             <i class="fas fa-save"></i> Save All Settings
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Save Changes?</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    Are you sure you want to save these settings?
+                </p>
+            </div>
+            <div class="flex gap-3 items-center px-4 py-3">
+                <button id="cancelSaveBtn" class="flex-1 px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">
+                    Cancel
+                </button>
+                <button id="confirmSaveBtn" class="flex-1 px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    Confirm
+                </button>
             </div>
         </div>
     </div>
@@ -313,6 +353,38 @@
                 // Show target content
                 document.getElementById(targetId).classList.remove('hidden');
             });
+        });
+
+        // Confirmation dialog for save settings
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const settingsForm = document.querySelector('form[action="{{ route('utils.update-settings') }}"]');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+        const cancelSaveBtn = document.getElementById('cancelSaveBtn');
+
+        saveSettingsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Show custom confirmation modal
+            confirmationModal.classList.remove('hidden');
+        });
+
+        confirmSaveBtn.addEventListener('click', function() {
+            // Hide modal and submit form
+            confirmationModal.classList.add('hidden');
+            settingsForm.submit();
+        });
+
+        cancelSaveBtn.addEventListener('click', function() {
+            // Hide modal and do nothing
+            confirmationModal.classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        confirmationModal.addEventListener('click', function(e) {
+            if (e.target === confirmationModal) {
+                confirmationModal.classList.add('hidden');
+            }
         });
     });
 </script>

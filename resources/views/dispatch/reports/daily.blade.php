@@ -5,8 +5,8 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <div>
-            <a href="{{ route('reports.index') }}" class="text-blue-600 hover:text-blue-800 mb-2 inline-block">
-                ← Back to Reports
+            <a href="{{ route('reports.index') }}" class="bg-blue-600 text-white px-8 py-2 rounded-full hover:bg-blue-700 mb-2 inline-block">
+                Back
             </a>
             <h1 class="text-3xl font-bold text-gray-800">Daily Report</h1>
             <p class="text-gray-600 mt-1">{{ $date->format('l, F d, Y') }}</p>
@@ -18,7 +18,7 @@
                     <i class="fas fa-file-pdf"></i> Export PDF
                 </button>
             </form>
-            <button onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+            <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 <i class="fas fa-print"></i> Print Report
             </button>
         </div>
@@ -217,7 +217,7 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ asset('js/chart.min.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Check if Chart.js is loaded
@@ -232,16 +232,10 @@
             new Chart(statusCtx, {
                 type: 'pie',
                 data: {
-                    labels: {
-                        !!json_encode($statusChartData['labels']) !!
-                    },
+                    labels: {!! json_encode($statusChartData['labels']) !!},
                     datasets: [{
-                        data: {
-                            !!json_encode($statusChartData['data']) !!
-                        },
-                        backgroundColor: {
-                            !!json_encode($statusChartData['colors']) !!
-                        },
+                        data: {!! json_encode($statusChartData['data']) !!},
+                        backgroundColor: {!! json_encode($statusChartData['colors']) !!},
                         borderWidth: 2,
                         borderColor: '#fff'
                     }]
@@ -276,14 +270,10 @@
             new Chart(hourlyCtx, {
                 type: 'bar',
                 data: {
-                    labels: {
-                        !!json_encode(array_column($hourlyData, 'hour')) !!
-                    },
+                    labels: {!! json_encode(array_column($hourlyData, 'hour')) !!},
                     datasets: [{
                         label: 'Trips',
-                        data: {
-                            !!json_encode(array_column($hourlyData, 'count')) !!
-                        },
+                        data: {!! json_encode(array_column($hourlyData, 'count')) !!},
                         backgroundColor: '#3b82f6',
                         borderColor: '#2563eb',
                         borderWidth: 1

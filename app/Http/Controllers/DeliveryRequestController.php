@@ -52,7 +52,7 @@ class DeliveryRequestController extends Controller
         $requests = $requestsQuery
             ->orderByDesc('preferred_schedule')
             ->orderByDesc('created_at')
-            ->paginate(7);
+            ->paginate(config('settings.pagination.delivery_requests', 10));
 
         $requests->withPath(route('requests.index'));
         if ($activeStatus !== 'all') {
@@ -353,7 +353,7 @@ class DeliveryRequestController extends Controller
         $requests = DeliveryRequest::with('client')
             ->where('status', $status)
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(config('settings.pagination.delivery_requests', 10));
 
         return view('dispatch.requests.index', compact('requests'));
     }

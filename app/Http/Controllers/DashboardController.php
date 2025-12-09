@@ -159,13 +159,82 @@ class DashboardController extends Controller
 
     public function updateSettings(Request $request)
     {
-        // Implement settings update logic
-        return redirect()->route('utils.settings')->with('success', 'Settings updated successfully.');
+        $validated = $request->validate([
+            'items_per_page' => 'required|integer|min:5|max:100',
+            'app_name' => 'required|string|max:255',
+            'timezone' => 'required|string|max:50',
+            'date_format' => 'required|string|max:20',
+        ], [
+            'items_per_page.min' => 'Items per page must be at least 5.',
+            'items_per_page.max' => 'Items per page cannot exceed 100.',
+            'items_per_page.integer' => 'Items per page must be a whole number.',
+        ]);
+
+        // Update .env file
+        $envPath = base_path('.env');
+        if (file_exists($envPath)) {
+            $envContent = file_get_contents($envPath);
+
+            // Update or add ITEMS_PER_PAGE
+            if (strpos($envContent, 'ITEMS_PER_PAGE=') !== false) {
+                $envContent = preg_replace('/ITEMS_PER_PAGE=.*/', 'ITEMS_PER_PAGE=' . $validated['items_per_page'], $envContent);
+            } else {
+                $envContent .= "\nITEMS_PER_PAGE=" . $validated['items_per_page'];
+            }
+
+            // Update or add APP_NAME
+            if (strpos($envContent, 'APP_NAME=') !== false) {
+                $envContent = preg_replace('/APP_NAME=.*/', 'APP_NAME="' . $validated['app_name'] . '"', $envContent);
+            } else {
+                $envContent .= "\nAPP_NAME=\"" . $validated['app_name'] . "\"";
+            }
+
+            // Update or add APP_TIMEZONE
+            if (strpos($envContent, 'APP_TIMEZONE=') !== false) {
+                $envContent = preg_replace('/APP_TIMEZONE=.*/', 'APP_TIMEZONE=' . $validated['timezone'], $envContent);
+            } else {
+                $envContent .= "\nAPP_TIMEZONE=" . $validated['timezone'];
+            }
+
+            // Update or add APP_DATE_FORMAT
+            if (isset($validated['date_format'])) {
+                $dateFormat = $validated['date_format'];
+                // Add quotes if value contains spaces
+                if (strpos($dateFormat, ' ') !== false) {
+                    $dateFormat = '"' . $dateFormat . '"';
+                }
+                if (strpos($envContent, 'APP_DATE_FORMAT=') !== false) {
+                    $envContent = preg_replace('/APP_DATE_FORMAT=.*/', 'APP_DATE_FORMAT=' . $dateFormat, $envContent);
+                } else {
+                    $envContent .= "\nAPP_DATE_FORMAT=" . $dateFormat;
+                }
+            }
+
+            file_put_contents($envPath, $envContent);
+        }
+
+        // Also update runtime configuration
+        config([
+            'app.name' => $validated['app_name'],
+            'app.timezone' => $validated['timezone'],
+            'settings.items_per_page' => $validated['items_per_page'],
+            'settings.pagination' => [
+                'delivery_requests' => $validated['items_per_page'],
+                'trips' => $validated['items_per_page'],
+                'drivers' => $validated['items_per_page'],
+                'vehicles' => $validated['items_per_page'],
+                'clients' => $validated['items_per_page'],
+            ],
+            'settings.date_format' => $validated['date_format'],
+        ]);
+
+        date_default_timezone_set($validated['timezone']);
+
+        return redirect()->route('utils.settings')->with('success', 'Settings updated successfully. Application name, timezone, and date format will take effect shortly.');
     }
 
     public function clearCache()
     {
-
 
         return redirect()->route('utils.settings')->with('success', 'Cache cleared successfully.');
     }

@@ -63,7 +63,7 @@ class TripController extends Controller
         $trips = $tripsQuery
             ->orderByDesc('scheduled_time')
             ->orderByDesc('created_at')
-            ->paginate(7);
+            ->paginate(config('settings.pagination.trips', 10));
 
         $trips->withPath(route('trips.index'));
         if ($activeStatus !== 'all') {
@@ -523,7 +523,7 @@ class TripController extends Controller
         $trips = Trip::with(['deliveryRequest.client', 'driver', 'vehicle'])
             ->where('status', $status)
             ->orderBy('scheduled_time', 'desc')
-            ->paginate(20);
+            ->paginate(config('settings.pagination.trips', 10));
 
         return view('dispatch.trips.index', compact('trips'));
     }
@@ -533,7 +533,7 @@ class TripController extends Controller
         $trips = Trip::with(['deliveryRequest.client', 'driver', 'vehicle'])
             ->where('driver_id', $driver->id)
             ->orderBy('scheduled_time', 'desc')
-            ->paginate(20);
+            ->paginate(config('settings.pagination.trips', 10));
 
         return view('dispatch.trips.index', compact('trips', 'driver'));
     }
@@ -543,7 +543,7 @@ class TripController extends Controller
         $trips = Trip::with(['deliveryRequest.client', 'driver', 'vehicle'])
             ->where('vehicle_id', $vehicle->id)
             ->orderBy('scheduled_time', 'desc')
-            ->paginate(20);
+            ->paginate(config('settings.pagination.trips', 10));
 
         return view('dispatch.trips.index', compact('trips', 'vehicle'));
     }
@@ -555,7 +555,7 @@ class TripController extends Controller
                 $query->where('client_id', $client->id);
             })
             ->orderBy('scheduled_time', 'desc')
-            ->paginate(20);
+            ->paginate(config('settings.pagination.trips', 10));
 
         return view('dispatch.trips.index', compact('trips', 'client'));
     }

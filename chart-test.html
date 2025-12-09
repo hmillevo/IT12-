@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart Test</title>
+    <script src="public/js/chart.min.js"></script>
+</head>
+<body>
+    <h1>Chart.js Test</h1>
+    <canvas id="testChart" width="400" height="200"></canvas>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js failed to load');
+                document.body.innerHTML += '<p style="color: red;">Chart.js failed to load</p>';
+                return;
+            }
+            
+            console.log('Chart.js loaded successfully');
+            document.body.innerHTML += '<p style="color: green;">Chart.js loaded successfully</p>';
+            
+            // Test creating a simple chart
+            const ctx = document.getElementById('testChart');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Red', 'Blue', 'Yellow'],
+                    datasets: [{
+                        label: 'Test Data',
+                        data: [12, 19, 3],
+                        backgroundColor: ['red', 'blue', 'yellow']
+                    }]
+                }
+            });
+        });
+    </script>
+</body>
+</html>

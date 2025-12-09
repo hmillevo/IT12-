@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dispatch System')</title>
+    <title>{{ config('app.name', 'Dispatch System') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -297,11 +297,11 @@
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">Are you sure you want to log out?</h3>
                 <p class="text-sm text-gray-500 mb-6">You can stay signed in to continue managing dispatch operations.</p>
                 <div class="flex justify-center space-x-3">
-                    <button id="cancel-logout" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition">
+                    <button id="cancel-logout" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
                         Cancel
                     </button>
-                    <button id="confirm-logout" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
-                        Yes, Logout
+                    <button id="confirm-logout" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                        Confirm
                     </button>
                 </div>
             </div>

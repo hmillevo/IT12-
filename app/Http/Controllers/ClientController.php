@@ -25,7 +25,7 @@ class ClientController extends Controller
         }
 
         $clients = $query->orderBy('name')
-            ->paginate(5)
+            ->paginate(config('settings.pagination.clients', 10))
             ->withPath(route('clients.index'));
 
         $stats = [
@@ -145,7 +145,7 @@ class ClientController extends Controller
         $requests = $client->deliveryRequests()
             ->with('trip')
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(config('settings.pagination.delivery_requests', 10));
 
         return view('dispatch.clients.requests', compact('client', 'requests'));
     }
@@ -156,7 +156,7 @@ class ClientController extends Controller
             ->with(['trip.driver', 'trip.vehicle'])
             ->whereHas('trip')
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(config('settings.pagination.trips', 10));
 
         return view('dispatch.clients.trips', compact('client', 'trips'));
     }

@@ -105,7 +105,7 @@
                             <div class="w-32 text-sm text-gray-600">Scheduled:</div>
                             <div class="flex-1 font-semibold">
                                 <i class="far fa-calendar-alt"></i>
-                                {{ $trip->scheduled_time->format('F d, Y') }} at {{ $trip->scheduled_time->format('h:i A') }}
+                                {{ $trip->scheduled_time->format(config('settings.date_format', 'M d, Y')) }} at {{ $trip->scheduled_time->format('h:i A') }}
                             </div>
                         </div>
                         @if($trip->route_instructions)
@@ -128,14 +128,14 @@
                         <div class="flex items-center text-sm">
                             <i class="fas fa-play text-green-500 mr-2"></i>
                             <span class="text-gray-600 mr-2">Started:</span>
-                            <span class="font-semibold">{{ $trip->actual_start_time->format('M d, Y h:i A') }}</span>
+                            <span class="font-semibold">{{ $trip->actual_start_time->format(config('settings.date_format', 'M d, Y') . ' h:i A') }}</span>
                         </div>
                         @endif
                         @if($trip->actual_end_time)
                         <div class="flex items-center text-sm">
                             <i class="fas fa-check-circle text-purple-500 mr-2"></i>
                             <span class="text-gray-600 mr-2">Completed:</span>
-                            <span class="font-semibold">{{ $trip->actual_end_time->format('M d, Y h:i A') }}</span>
+                            <span class="font-semibold">{{ $trip->actual_end_time->format(config('settings.date_format', 'M d, Y') . ' h:i A') }}</span>
                         </div>
                         @if($trip->actual_start_time && $trip->actual_end_time)
                         <div class="flex items-center text-sm">
@@ -161,7 +161,7 @@
                             <div class="flex justify-between items-start">
                                 <p class="text-sm">{{ $update->message }}</p>
                                 <span class="text-xs text-gray-500 whitespace-nowrap ml-2">
-                                    {{ $update->created_at->format('M d, h:i A') }}
+                                    {{ $update->created_at->format(config('settings.date_format', 'M d, Y') . ' h:i A') }}
                                 </span>
                             </div>
                             @if($update->location)
@@ -215,7 +215,7 @@
                             </div>
                             <div class="ml-3">
                                 <p class="text-sm font-medium">Trip Created</p>
-                                <p class="text-xs text-gray-500">{{ $trip->created_at->format('M d, Y h:i A') }}</p>
+                                <p class="text-xs text-gray-500">{{ $trip->created_at->format(config('settings.date_format', 'M d, Y') . ' h:i A') }}</p>
                             </div>
                         </div>
 
@@ -226,7 +226,7 @@
                             </div>
                             <div class="ml-3">
                                 <p class="text-sm font-medium">Trip Started</p>
-                                <p class="text-xs text-gray-500">{{ $trip->actual_start_time->format('M d, Y h:i A') }}</p>
+                                <p class="text-xs text-gray-500">{{ $trip->actual_start_time->format(config('settings.date_format', 'M d, Y') . ' h:i A') }}</p>
                             </div>
                         </div>
                         @endif
@@ -238,7 +238,7 @@
                             </div>
                             <div class="ml-3">
                                 <p class="text-sm font-medium">Trip Completed</p>
-                                <p class="text-xs text-gray-500">{{ $trip->actual_end_time->format('M d, Y h:i A') }}</p>
+                                <p class="text-xs text-gray-500">{{ $trip->actual_end_time->format(config('settings.date_format', 'M d, Y') . ' h:i A') }}</p>
                             </div>
                         </div>
                         @endif

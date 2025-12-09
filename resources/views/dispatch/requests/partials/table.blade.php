@@ -43,7 +43,7 @@
                     {{ Str::limit($request->delivery_location, 30) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {{ $request->preferred_schedule->format('M d, Y') }}<br>
+                    {{ $request->preferred_schedule->format(config('settings.date_format', 'M d, Y')) }}<br>
                     <span class="text-xs">{{ $request->preferred_schedule->format('h:i A') }}</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -70,7 +70,7 @@
                             data-container-type="{{ ucfirst($request->container_type) }}"
                             data-pickup="{{ $request->pickup_location }}"
                             data-delivery="{{ $request->delivery_location }}"
-                            data-schedule-date="{{ $request->preferred_schedule->format('F d, Y') }}"
+                            data-schedule-date="{{ $request->preferred_schedule->format(config('settings.date_format', 'M d, Y')) }}"
                             data-schedule-time="{{ $request->preferred_schedule->format('h:i A') }}"
                             data-status="{{ $request->status }}"
                             data-notes="{{ $request->notes ?? '' }}"

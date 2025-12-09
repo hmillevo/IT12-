@@ -48,7 +48,7 @@
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    <div>{{ $trip->scheduled_time->format('M d, Y') }}</div>
+                    <div>{{ $trip->scheduled_time->format(config('settings.date_format', 'M d, Y')) }}</div>
                     <div class="text-xs">{{ $trip->scheduled_time->format('h:i A') }}</div>
                     @if($trip->actual_start_time)
                     <div class="text-xs text-green-600 mt-1">
@@ -86,13 +86,13 @@
                             data-container-type="{{ ucfirst($trip->deliveryRequest->container_type) }}"
                             data-pickup="{{ $trip->deliveryRequest->pickup_location }}"
                             data-delivery="{{ $trip->deliveryRequest->delivery_location }}"
-                            data-scheduled-date="{{ $trip->scheduled_time->format('F d, Y') }}"
+                            data-scheduled-date="{{ $trip->scheduled_time->format(config('settings.date_format', 'M d, Y')) }}"
                             data-scheduled-time="{{ $trip->scheduled_time->format('h:i A') }}"
                             data-route-instructions="{{ $trip->route_instructions ?? '' }}"
                             data-status="{{ $trip->status }}"
-                            data-created-at="{{ $trip->created_at->format('M d, Y h:i A') }}"
-                            data-start-time="{{ $trip->actual_start_time ? $trip->actual_start_time->format('M d, Y h:i A') : '' }}"
-                            data-complete-time="{{ $trip->actual_end_time ? $trip->actual_end_time->format('M d, Y h:i A') : '' }}"
+                            data-created-at="{{ $trip->created_at->format(config('settings.date_format', 'M d, Y') . ' h:i A') }}"
+                            data-start-time="{{ $trip->actual_start_time ? $trip->actual_start_time->format(config('settings.date_format', 'M d, Y') . ' h:i A') : '' }}"
+                            data-complete-time="{{ $trip->actual_end_time ? $trip->actual_end_time->format(config('settings.date_format', 'M d, Y') . ' h:i A') : '' }}"
                             data-start-url="{{ $trip->status === 'scheduled' ? route('trips.start', $trip) : '' }}"
                             data-complete-url="{{ $trip->status === 'in-transit' ? route('trips.complete', $trip) : '' }}"
                             data-view-url="{{ route('trips.show', $trip) }}">

@@ -201,6 +201,26 @@
     </div>
 </div>
 
+<!-- Start Trip Confirmation Modal -->
+<div id="start-confirm-modal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 space-y-6">
+        <div class="space-y-2 text-center">
+            <h3 class="text-2xl font-semibold text-[#1E40AF]">Start this trip?</h3>
+            <p class="text-sm text-gray-600">Are you sure you want to start this trip?</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <button id="start-confirm-no" type="button"
+                class="px-6 py-3 rounded-full text-base font-semibold text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 transition">
+                Cancel
+            </button>
+            <button id="start-confirm-yes" type="button"
+                class="px-6 py-3 rounded-full text-base font-semibold text-white bg-[#1E40AF] hover:bg-[#1A36A0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1E40AF] border border-[#1E40AF] transition">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Complete Trip Confirmation Modal -->
 <div id="complete-confirm-modal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40 backdrop-blur-sm px-4">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 space-y-6">
@@ -260,9 +280,8 @@
 
             root.querySelectorAll('.start-trip-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
-                    if (confirm('Start this trip?')) {
-                        event.currentTarget.closest('form').submit();
-                    }
+                    const form = event.currentTarget.closest('form');
+                    showStartConfirm(form);
                 });
             });
 
@@ -368,6 +387,10 @@
         const modalViewFull = document.getElementById('modal-view-full');
         const modalStartForm = document.getElementById('modal-start-form');
         const modalCompleteForm = document.getElementById('modal-complete-form');
+        const startConfirmModal = document.getElementById('start-confirm-modal');
+        const startConfirmYes = document.getElementById('start-confirm-yes');
+        const startConfirmNo = document.getElementById('start-confirm-no');
+        let pendingStartForm = null;
         const completeConfirmModal = document.getElementById('complete-confirm-modal');
         const completeConfirmYes = document.getElementById('complete-confirm-yes');
         const completeConfirmNo = document.getElementById('complete-confirm-no');
@@ -381,6 +404,36 @@
             'in-transit': ['bg-blue-100', 'text-blue-800'],
             completed: ['bg-green-100', 'text-green-800'],
             cancelled: ['bg-red-100', 'text-red-800']
+        };
+
+        const showStartConfirm = (form) => {
+            if (!form) {
+                console.error('Start trip form not found');
+                return;
+            }
+
+            if (!startConfirmModal) {
+                // If modal doesn't exist, submit directly
+                form.submit();
+                return;
+            }
+
+            pendingStartForm = form;
+            startConfirmModal.classList.remove('hidden');
+            startConfirmModal.classList.add('flex');
+            if (startConfirmYes) {
+                startConfirmYes.focus({
+                    preventScroll: true
+                });
+            }
+        };
+
+        const hideStartConfirm = () => {
+            if (startConfirmModal) {
+                startConfirmModal.classList.add('hidden');
+                startConfirmModal.classList.remove('flex');
+            }
+            pendingStartForm = null;
         };
 
         const showCompleteConfirm = (form) => {
@@ -423,6 +476,7 @@
             } else {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
+                hideStartConfirm();
                 hideCompleteConfirm();
             }
         };
@@ -534,9 +588,7 @@
 
         if (modalStartTrip && modalStartForm) {
             modalStartTrip.addEventListener('click', () => {
-                if (confirm('Start this trip?')) {
-                    modalStartForm.submit();
-                }
+                showStartConfirm(modalStartForm);
             });
         }
 
@@ -587,6 +639,36 @@
             });
         }
 
+        if (startConfirmYes) {
+            startConfirmYes.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!pendingStartForm) {
+                    console.error('No pending form to submit');
+                    hideStartConfirm();
+                    return;
+                }
+
+                hideStartConfirm();
+
+                // Submit the form - use setTimeout to ensure modal is closed first
+                setTimeout(() => {
+                    if (pendingStartForm) {
+                        pendingStartForm.submit();
+                    }
+                }, 100);
+            });
+        }
+
+        if (startConfirmNo) {
+            startConfirmNo.addEventListener('click', hideStartConfirm);
+        }
+
+        if (startConfirmModal) {
+            startConfirmModal.addEventListener('click', (event) => {
+                if (event.target === startConfirmModal) hideStartConfirm();
+            });
+        }
+
         if (completeConfirmNo) {
             completeConfirmNo.addEventListener('click', hideCompleteConfirm);
         }
@@ -599,6 +681,11 @@
 
         document.addEventListener('keydown', (event) => {
             if (event.key !== 'Escape') return;
+
+            if (startConfirmModal && startConfirmModal.classList.contains('flex')) {
+                hideStartConfirm();
+                return;
+            }
 
             if (completeConfirmModal && completeConfirmModal.classList.contains('flex')) {
                 hideCompleteConfirm();
